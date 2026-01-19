@@ -1,11 +1,12 @@
 use feed_rs::parser;
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Article {
     pub title: String,
     pub link: Option<String>,
     pub published: Option<String>,
+    pub content: Option<String>,
 }
 
 #[derive(Debug)]
@@ -38,10 +39,15 @@ pub async fn fetch_feed(url: &str) -> Result<FeedResult, Box<dyn Error>> {
                 .published
                 .or(entry.updated)
                 .map(|dt| dt.format("%Y-%m-%d %H:%M").to_string());
+            let content = entry
+                .summary
+                .map(|s| s.content)
+                .or_else(|| entry.content.and_then(|c| c.body));
             Article {
                 title,
                 link,
                 published,
+                content,
             }
         })
         .collect();

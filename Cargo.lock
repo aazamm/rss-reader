@@ -860,9 +860,11 @@ dependencies = [
 name = "rss-reader"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "clap",
  "dirs",
  "feed-rs",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

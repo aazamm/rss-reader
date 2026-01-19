@@ -3,9 +3,17 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Investment {
+    pub ticker: String,
+    pub name: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Config {
     pub feeds: Vec<String>,
+    #[serde(default)]
+    pub investments: Vec<Investment>,
 }
 
 impl Config {
@@ -39,6 +47,28 @@ impl Config {
     pub fn remove_feed(&mut self, url: &str) -> bool {
         if let Some(pos) = self.feeds.iter().position(|f| f == url) {
             self.feeds.remove(pos);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn add_investment(&mut self, ticker: &str, name: Option<String>) -> bool {
+        let ticker_upper = ticker.to_uppercase();
+        if self.investments.iter().any(|i| i.ticker == ticker_upper) {
+            return false;
+        }
+        self.investments.push(Investment {
+            ticker: ticker_upper,
+            name,
+        });
+        true
+    }
+
+    pub fn remove_investment(&mut self, ticker: &str) -> bool {
+        let ticker_upper = ticker.to_uppercase();
+        if let Some(pos) = self.investments.iter().position(|i| i.ticker == ticker_upper) {
+            self.investments.remove(pos);
             true
         } else {
             false
